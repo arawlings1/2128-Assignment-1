@@ -27,3 +27,32 @@ plot(pressure)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+```{r}
+library(sf)
+library(tidyverse)
+library(ggspatial)
+library(ggthemes)
+```
+
+```{r}
+stations <- st_read("TRANS_SubwayStations.shx")
+```
+
+```{r}
+stations_plot <- ggplot(stations) +
+  geom_sf()
+
+stations_plot
+```
+
+```{r}
+test1 <- st_read("TRANS_SubwayStations.shx")
+
+stations <- st_as_sf(test1, crs = 2249, agr = "constant")
+
+stations_plot <- ggplot(stations) +
+  geom_sf()
+
+stations_plot
+```
+
