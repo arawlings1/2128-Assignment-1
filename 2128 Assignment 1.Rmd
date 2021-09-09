@@ -7,26 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
+#First, we loaded the package that had previously installed in the console:
 ```{r}
 library(sf)
 library(tidyverse)
@@ -34,25 +15,117 @@ library(ggspatial)
 library(ggthemes)
 ```
 
+We downloaded two sets of data, one from the City of Cambridge's GIS portal to display the spatial location of the MBTA stops. The second was data from the MBTA open data portal on ridership at each MBTA stop across various times of the day. We narrowed down the scope of this project to focus on only the parts of the MBTA Red Line that go through Cambridge and only on ridership during the morning commuter peak.
 ```{r}
-stations <- st_read("TRANS_SubwayStations.shx")
+stations <- st_read("TRANS_SubwayStations-2")
+ridership <- st_read("MBTA Ridership.csv")%>%
+  mutate(STATION = toupper(stop_name))
+
+MBTA_ridership_AM_PEAK <- st_as_sf(left_join(ridership, stations, by = "STATION"))%>%
+  filter(time_period_name == "AM_PEAK")
+
+MBTA_ridership_AM_PEAK$average_flow <-
+  as.numeric(as.character(MBTA_ridership_AM_PEAK$average_flow))
+```
+Our first plot confirmed that we could successfully plot the number of riders during the morning peak for each MBTA station. We tried to separate the "inbound" riders from the "outbound" riders, but we were unable to figure out the code to do so. We will continue to play with the various functions to learn how to filter variables.
+```{r}
+ggplot(MBTA_ridership_AM_PEAK)+
+  geom_sf(aes(size = average_flow,
+              color = stop_name),
+          alpha = 0.25)
+```
+We then downloaded GIS data to show the boundary of Cambridge. This serves as our polygon layer.
+```{r}
+boundary <- st_read("BOUNDARY_CityBoundary.shp")
 ```
 
+Our first map shows the Cambridge boundary, outlined in red, and the average flow of riders during the morning peak at each red line station.
 ```{r}
-stations_plot <- ggplot(stations) +
-  geom_sf()
-
-stations_plot
+ggplot(MBTA_ridership_AM_PEAK)+
+  annotation_map_tile(zoomin = 0, progress = "none", type = "cartolight")+
+  geom_sf(aes(size = average_flow,
+              color = stop_name),
+          alpha = 0.25)+
+  labs(caption = "Map tiles and data by OpenStreetMap")+
+  geom_sf(data = boundary,
+          color = "red",
+          size = 1,
+          fill = NA)
+```
+We realized that it would be helpful to outline the path of the MBTA Red Line through Cambridge on our next map, so we downloaded GIS data that shows the path of the Red Line.
+```{r}
+subway_line <- st_read("TRANS_SubwayLines")
+subway_line_red <- st_as_sf(subway_line) %>%
+  filter(LINE == "RED")
 ```
 
+This next map includes the outline of the Red Line.
 ```{r}
-test1 <- st_read("TRANS_SubwayStations.shx")
-
-stations <- st_as_sf(test1, crs = 2249, agr = "constant")
-
-stations_plot <- ggplot(stations) +
-  geom_sf()
-
-stations_plot
+ggplot(MBTA_ridership_AM_PEAK)+
+  annotation_map_tile(zoomin = 0, progress = "none", type = "cartolight")+
+  geom_sf(aes(size = average_flow,
+              color = stop_name),
+          alpha = 0.5)+
+  labs(caption = "Map tiles and data by OpenStreetMap")+
+  geom_sf(data = boundary,
+          color = "red",
+          size = 1,
+          fill = NA)+
+  geom_sf(data = subway_line_red,
+          color = "cadetblue3",
+          size = 1,
+          fill = NA)
+```
+We began to play with color and introduced new colors, including "firebrick4" and "darkslategray4." We also changed to representing the boundaries of Cambridge with a fill instead of an outline.
+```{r}
+ggplot(MBTA_ridership_AM_PEAK)+
+  annotation_map_tile(zoomin = 0, progress = "none", type = "cartolight")+
+  geom_sf(aes(size = average_flow,
+              color = stop_name),
+          alpha = 0.5)+
+  labs(caption = "Map tiles and data by OpenStreetMap")+
+  geom_sf(data = boundary,
+          color = NA,
+          size = 1,
+          fill = "firebrick4",
+          alpha = 0.5)+
+  geom_sf(data = subway_line_red,
+          color = "darkslategray4",
+          size = 1,
+          fill = NA)
+```
+Next, we played around with the base map. Here, the basemap displayed is "stamenbw" instead of "cartolight" (which we were using previously).
+```{r}
+ggplot(MBTA_ridership_AM_PEAK)+
+  annotation_map_tile(zoomin = 0, progress = "none", type = "stamenbw")+
+  geom_sf(aes(size = average_flow,
+              color = stop_name))+
+  labs(caption = "Map tiles and data by OpenStreetMap")+
+  geom_sf(data = boundary,
+          color = NA,
+          size = 1,
+          fill = "firebrick4",
+          alpha = 0.5)+
+  geom_sf(data = subway_line_red,
+          color = "darkslategray4",
+          size = 1,
+          fill = NA)
 ```
 
+For our final map, we changed the aesthetics of our map to emphasize the Red Line path, shown in bright white over a mostly-black base map. We hope to learn how to manipulate the graphics with more expertise so that we can more easily highlight the pieces of data that we are most critical.
+```{r}
+ggplot(MBTA_ridership_AM_PEAK)+
+  annotation_map_tile(zoomin = 0, progress = "none", type = "cartodark")+
+  geom_sf(aes(size = average_flow,
+              color = stop_name))+
+  labs(caption = "Map tiles and data by OpenStreetMap")+
+  geom_sf(data = boundary,
+          color = NA,
+          size = 1,
+          fill = "white",
+          alpha = 0.1)+
+  geom_sf(data = subway_line_red,
+          color = "white",
+          size = 1,
+          fill = NA)
+```
