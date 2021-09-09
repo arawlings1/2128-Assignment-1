@@ -129,3 +129,13 @@ ggplot(MBTA_ridership_AM_PEAK)+
           size = 1,
           fill = NA)
 ```
+
+Contribution statements--
+
+Arielle: I have a good grasp of the very basics of R (loading data, installing packages, and other basic commands) coming into this class, but quickly ran into many roadblocks with this assignment that shot down any confidence I had going into it. I struggled to download one of the primary datasets we chose for this project and spent a lot of time troubleshooting to learn how to download it. While I was working through that, I relied heavily on Lei who was able to successfully download the data and she and I worked on some of the initial code to merge the datasets and plot them on her computer. One we collectively figured out how to render maps with our data, I spent time on the final iterations of the various maps and worked collaboratively with Lei to think through different ways to visualize commuter flows through the Cambridge Red Line stations. At the end of our project, I took the lead on familiarizing myself with GitHub, and though I ran into trouble with authenticating GitHub in RStudio and spent a good amount of time working to fix it, I eventually worked through it and was able to get our RMarkdown file uploaded to it.
+Taylor: I personally had a lot of trouble keeping up with my group because the data we were using was a bit more complex then what was assigned. However, I was able to figure out how to connect my R Studio to GitHub (both Arielle and I both are Mac users and were running into some authentication issues). I also tried to be as supportive as possible and follow along with my group members as they were working through the different coding road blocks they were running into.
+Lei: For this project, I was interested in commuting time and was pointed to the MBTA Open Data Portal by our TA Jonathan. There, our group found the ridership file, of which we realized did not have spatial data. I tried manually adding the spatial information onto the data file but failed. However, after consulting Megan and Carole together as a group, the “mutate” function worked, and we all learned a new skill. I shared preliminary ideas on plotting after the data was all right, and worked collaboratively with Arielle on iterations. We wanted to try out more functions, such as filtering and changing names of variables in the plot and legend, and although not all successful, we intend on continuing to learn more. In other instances, I helped our team mate Taylor with familiarizing R after I had finished following the tutorial and she encountered some issues quite early on.
+
+Arielle: 10 points
+Lei: 10 points
+Taylor: 10 points
